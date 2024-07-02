@@ -1,16 +1,16 @@
 document.addEventListener('DOMContentLoaded', function () {
-    
     async function checkXRSupport() {
         if ('xr' in navigator) {
             return navigator.xr.isSessionSupported('immersive-ar');
         }
-        return Promise.resolve(false);
+        return false;
     }
 
     async function startAR() {
         try {
             const supported = await checkXRSupport();
             if (!supported) {
+                console.error('WebXR AR is not supported in this browser.');
                 alert('WebXR AR is not supported in this browser.');
                 return;
             }
@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     initializeARScene(session);
                 } catch (e) {
                     console.error('Error starting AR session:', e);
-                    alert('Failed to start AR session.');
+                    alert('Failed to start AR session. Please check console for errors.');
                 }
             });
         } catch (e) {
