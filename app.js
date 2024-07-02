@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
         const cube = new THREE.Mesh(geometry, material);
 
-        cube.position.set(0, 0, -3); // Position the cube in AR coordinates
+        cube.position.set(0, 0, -3); 
 
         scene.add(cube);
 
@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Request an XR reference space for local tracking
         session.requestReferenceSpace('local').then((referenceSpace) => {
             console.log('Reference space set:', referenceSpace);
-            renderer.xr.setReferenceSpace(referenceSpace);
+            renderer.xr.setReferenceSpaceType('local');
             animate();
         }).catch((e) => {
             console.error('Error setting reference space:', e);
