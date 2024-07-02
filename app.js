@@ -28,7 +28,8 @@ document.addEventListener('DOMContentLoaded', function () {
             enterARButton.addEventListener('click', async () => {
                 try {
                     const session = await navigator.xr.requestSession('immersive-ar', {
-                        requiredFeatures: ['local']
+                        requiredFeatures: ['local-floor'], // Attempt to use 'local-floor'
+                        optionalFeatures: ['local'] // Fallback to 'local'
                     });
                     console.log('AR session started:', session);
                     initializeARScene(session);
@@ -69,14 +70,20 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
-        // Request an XR reference space for local tracking
-        session.requestReferenceSpace('local').then((referenceSpace) => {
-            console.log('Reference space set:', referenceSpace);
-            renderer.xr.setReferenceSpaceType('local');
+        // Attempt to request 'local-floor' reference space, fallback to 'local' if not supported
+        session.requestReferenceSpace('local-floor').then((referenceSpace) => {
+            console.log('Reference space set: local-floor', referenceSpace);
+            renderer.xr.setReferenceSpaceType('local-floor');
             animate();
-        }).catch((e) => {
-            console.error('Error setting reference space:', e);
-            alert('Failed to set reference space.');
+        }).catch(() => {
+            session.requestReferenceSpace('local').then((referenceSpace) => {
+                console.log('Reference space set: local', referenceSpace);
+                renderer.xr.setReferenceSpaceType('local');
+                animate();
+            }).catch((e) => {
+                console.error('Error setting reference space:', e);
+                alert('Failed to set reference space.');
+            });
         });
     }
 
