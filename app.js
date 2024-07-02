@@ -99,7 +99,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (hitTestResults.length > 0) {
                     const hit = hitTestResults[0];
                     const pose = hit.getPose(referenceSpace);
-
                     cube.position.set(pose.transform.position.x, pose.transform.position.y, pose.transform.position.z);
                     scene.add(cube);
                 }
@@ -109,9 +108,13 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         function animate() {
-            renderer.setAnimationLoop(() => {
+            renderer.setAnimationLoop(render);
+            
+            function render() {
+                cube.rotation.x += 0.01;
+                cube.rotation.y += 0.01;
                 renderer.render(scene, camera);
-            });
+            }
         }
 
         setReferenceSpace();
