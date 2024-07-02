@@ -1,8 +1,16 @@
 document.addEventListener('DOMContentLoaded', function () {
     async function checkXRSupport() {
         if ('xr' in navigator) {
-            return navigator.xr.isSessionSupported('immersive-ar');
+            try {
+                const supported = await navigator.xr.isSessionSupported('immersive-ar');
+                console.log('XR support check result:', supported);
+                return supported;
+            } catch (e) {
+                console.error('Error checking XR support:', e);
+                return false;
+            }
         }
+        console.error('XR not available in navigator');
         return false;
     }
 
@@ -20,8 +28,9 @@ document.addEventListener('DOMContentLoaded', function () {
             enterARButton.addEventListener('click', async () => {
                 try {
                     const session = await navigator.xr.requestSession('immersive-ar', {
-                        requiredFeatures: ['local-floor']
+                        requiredFeatures: ['local']
                     });
+                    console.log('AR session started:', session);
                     initializeARScene(session);
                 } catch (e) {
                     console.error('Error starting AR session:', e);
@@ -55,13 +64,14 @@ document.addEventListener('DOMContentLoaded', function () {
         renderer.xr.setSession(session);
 
         function animate() {
-            renderer.setAnimationLoop(function () {
+            renderer.setAnimationLoop(() => {
                 renderer.render(scene, camera);
             });
         }
 
-        // Create an XRReferenceSpace for local floor tracking
+        // Request an XR reference space for local tracking
         session.requestReferenceSpace('local').then((referenceSpace) => {
+            console.log('Reference space set:', referenceSpace);
             renderer.xr.setReferenceSpace(referenceSpace);
             animate();
         }).catch((e) => {
