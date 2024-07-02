@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         // Create an XRReferenceSpace for local floor tracking
-        session.requestReferenceSpace('local-floor').then((referenceSpace) => {
+        session.requestReferenceSpace('local').then((referenceSpace) => {
             renderer.xr.setReferenceSpace(referenceSpace);
             animate();
         }).catch((e) => {
