@@ -1,5 +1,3 @@
-import { ARButton } from 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/webxr/ARButton.js';
-
 document.addEventListener('DOMContentLoaded', function () {
     async function checkXRSupport() {
         if ('xr' in navigator) {
@@ -21,7 +19,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
             enterARButton.addEventListener('click', async () => {
                 try {
-                    const session = await navigator.xr.requestSession('immersive-ar');
+                    const session = await navigator.xr.requestSession('immersive-ar', {
+                        requiredFeatures: ['local-floor']
+                    });
                     initializeARScene(session);
                 } catch (e) {
                     console.error('Error starting AR session:', e);
@@ -35,7 +35,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function initializeARScene(session) {
-        
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
@@ -47,19 +46,28 @@ document.addEventListener('DOMContentLoaded', function () {
 
         scene.add(cube);
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.xr.enabled = true;
         document.body.appendChild(renderer.domElement);
 
-        const arButton = ARButton.createButton(renderer);
-          document.body.appendChild(arButton);
+        // Set the session to the renderer
+        renderer.xr.setSession(session);
 
         function animate() {
-            renderer.render(scene, camera);
-            session.requestAnimationFrame(animate);
+            renderer.setAnimationLoop(function () {
+                renderer.render(scene, camera);
+            });
         }
 
-        animate();
+        // Create an XRReferenceSpace for local floor tracking
+        session.requestReferenceSpace('local-floor').then((referenceSpace) => {
+            renderer.xr.setReferenceSpace(referenceSpace);
+            animate();
+        }).catch((e) => {
+            console.error('Error setting reference space:', e);
+            alert('Failed to set reference space.');
+        });
     }
 
     startAR();
