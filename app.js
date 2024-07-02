@@ -24,12 +24,16 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             const enterARButton = document.getElementById('enter-ar');
+            if (!enterARButton) {
+                console.error('No element with ID "enter-ar" found.');
+                return;
+            }
 
             enterARButton.addEventListener('click', async () => {
                 try {
                     const session = await navigator.xr.requestSession('immersive-ar', {
-                        requiredFeatures: ['local-floor'], // Attempt to use 'local-floor'
-                        optionalFeatures: ['local'] // Fallback to 'local'
+                        requiredFeatures: ['local-floor', 'hit-test'],
+                        optionalFeatures: ['local']
                     });
                     console.log('AR session started:', session);
                     initializeARScene(session);
@@ -52,17 +56,57 @@ document.addEventListener('DOMContentLoaded', function () {
         const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
         const cube = new THREE.Mesh(geometry, material);
 
-        cube.position.set(0, 0, -3); 
-
-        scene.add(cube);
-
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.xr.enabled = true;
         document.body.appendChild(renderer.domElement);
 
-        // Set the session to the renderer
         renderer.xr.setSession(session);
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        async function setReferenceSpace() {
+            try {
+                const referenceSpace = await session.requestReferenceSpace('local-floor');
+                renderer.xr.setReferenceSpaceType('local-floor');
+                console.log('Reference space set: local-floor', referenceSpace);
+                setupHitTest(referenceSpace);
+            } catch {
+                try {
+                    const referenceSpace = await session.requestReferenceSpace('local');
+                    renderer.xr.setReferenceSpaceType('local');
+                    console.log('Reference space set: local', referenceSpace);
+                    setupHitTest(referenceSpace);
+                } catch (e) {
+                    console.error('Error setting reference space:', e);
+                    alert('Failed to set reference space.');
+                }
+            }
+        }
+
+        async function setupHitTest(referenceSpace) {
+            const viewerSpace = await session.requestReferenceSpace('viewer');
+            const hitTestSource = await session.requestHitTestSource({ space: viewerSpace });
+
+            session.addEventListener('select', (event) => {
+                const frame = event.frame;
+                const hitTestResults = frame.getHitTestResults(hitTestSource);
+
+                if (hitTestResults.length > 0) {
+                    const hit = hitTestResults[0];
+                    const pose = hit.getPose(referenceSpace);
+
+                    cube.position.set(pose.transform.position.x, pose.transform.position.y, pose.transform.position.z);
+                    scene.add(cube);
+                }
+            });
+
+            animate();
+        }
 
         function animate() {
             renderer.setAnimationLoop(() => {
@@ -70,21 +114,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
-        // Attempt to request 'local-floor' reference space, fallback to 'local' if not supported
-        session.requestReferenceSpace('local-floor').then((referenceSpace) => {
-            console.log('Reference space set: local-floor', referenceSpace);
-            renderer.xr.setReferenceSpaceType('local-floor');
-            animate();
-        }).catch(() => {
-            session.requestReferenceSpace('local').then((referenceSpace) => {
-                console.log('Reference space set: local', referenceSpace);
-                renderer.xr.setReferenceSpaceType('local');
-                animate();
-            }).catch((e) => {
-                console.error('Error setting reference space:', e);
-                alert('Failed to set reference space.');
-            });
-        });
+        setReferenceSpace();
     }
 
     startAR();
