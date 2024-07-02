@@ -1,33 +1,25 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Function to check if WebXR is supported by the browser
-    function checkXRSupport() {
+    
+    async function checkXRSupport() {
         if ('xr' in navigator) {
             return navigator.xr.isSessionSupported('immersive-ar');
         }
         return Promise.resolve(false);
     }
 
-    // Function to start the AR experience
     async function startAR() {
         try {
-            // Check if WebXR AR session is supported
             const supported = await checkXRSupport();
             if (!supported) {
-                // Handle unsupported scenario
                 alert('WebXR AR is not supported in this browser.');
                 return;
             }
 
-            // Get reference to the button
             const enterARButton = document.getElementById('enter-ar');
 
-            // Add click event listener to start AR session
             enterARButton.addEventListener('click', async () => {
                 try {
-                    // Request an immersive AR session
                     const session = await navigator.xr.requestSession('immersive-ar');
-
-                    // Initialize your AR scene with Three.js here
                     initializeARScene(session);
                 } catch (e) {
                     console.error('Error starting AR session:', e);
@@ -40,13 +32,29 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Initialize AR when DOM content is loaded
-    startAR();
-
-    // Function to initialize your AR scene with Three.js
     function initializeARScene(session) {
-        // Your AR scene setup code using Three.js goes here
-        // Example: Loading 3D models, setting up lighting, etc.
-        // Use session.renderState to update your scene per frame
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        const geometry = new THREE.BoxGeometry();
+        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        const cube = new THREE.Mesh(geometry, material);
+
+        cube.position.set(0, 0, -3); // Position the cube in AR coordinates
+
+        scene.add(cube);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        function animate() {
+            renderer.render(scene, camera);
+            session.requestAnimationFrame(animate);
+        }
+
+        animate();
     }
+
+    startAR();
 });
