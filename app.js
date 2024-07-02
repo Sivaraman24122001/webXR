@@ -1,3 +1,5 @@
+import { ARButton } from 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/webxr/ARButton.js';
+
 document.addEventListener('DOMContentLoaded', function () {
     async function checkXRSupport() {
         if ('xr' in navigator) {
@@ -33,6 +35,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function initializeARScene(session) {
+        
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
@@ -47,6 +50,9 @@ document.addEventListener('DOMContentLoaded', function () {
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
+
+        const arButton = ARButton.createButton(renderer);
+          document.body.appendChild(arButton);
 
         function animate() {
             renderer.render(scene, camera);
