@@ -3,13 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Indoor Navigation in AR</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Inline AR Example</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+        #change-color-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 9999;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-    <button id="enter-ar">Enter AR</button>
-    <div id="ar-session-container"></div>
-
+    <button id="change-color-button">Change Cube Color</button>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="app.js"></script>
 </body>
