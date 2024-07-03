@@ -54,7 +54,19 @@ document.addEventListener('DOMContentLoaded', function () {
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.xr.enabled = true;
+
+        // Create a separate overlay div for UI elements
+        const overlayDiv = document.createElement('div');
+        overlayDiv.style.position = 'absolute';
+        overlayDiv.style.top = '0';
+        overlayDiv.style.left = '0';
+        overlayDiv.style.width = '100%';
+        overlayDiv.style.height = '100%';
+        overlayDiv.style.pointerEvents = 'none'; // Allow clicks to go through to WebGL
+
+        // Append renderer and overlay to the body
         document.body.appendChild(renderer.domElement);
+        document.body.appendChild(overlayDiv);
 
         renderer.xr.setSession(session);
 
@@ -94,8 +106,9 @@ document.addEventListener('DOMContentLoaded', function () {
         changeColorButton.style.position = 'absolute';
         changeColorButton.style.top = '20px';
         changeColorButton.style.left = '20px';
+        changeColorButton.style.zIndex = '9999'; // Ensure button is on top
         changeColorButton.addEventListener('click', changeCubeColor);
-        document.body.appendChild(changeColorButton);
+        overlayDiv.appendChild(changeColorButton);
 
         setReferenceSpace();
         animate();
