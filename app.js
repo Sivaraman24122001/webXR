@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function initializeARScene(session) {
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-
+        
         const geometry = new THREE.BoxGeometry();
         const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
         const cube = new THREE.Mesh(geometry, material);
@@ -82,6 +82,20 @@ document.addEventListener('DOMContentLoaded', function () {
         function animate() {
             renderer.setAnimationLoop(() => renderer.render(scene, camera));
         }
+
+        // Function to change cube color to red
+        function changeCubeColor() {
+            cube.material.color.set(0xff0000); // Red color
+        }
+
+        // Adding a button to change cube color
+        const changeColorButton = document.createElement('button');
+        changeColorButton.textContent = 'Change Color to Red';
+        changeColorButton.style.position = 'absolute';
+        changeColorButton.style.top = '20px';
+        changeColorButton.style.left = '20px';
+        changeColorButton.addEventListener('click', changeCubeColor);
+        document.body.appendChild(changeColorButton);
 
         setReferenceSpace();
         animate();
