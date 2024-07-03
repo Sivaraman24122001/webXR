@@ -2,8 +2,7 @@ document.addEventListener('DOMContentLoaded', function () {
     async function checkXRSupport() {
         if ('xr' in navigator) {
             try {
-                console.log('Checking XR support...');
-                return await navigator.xr.isSessionSupported('inline');
+                return await navigator.xr.isSessionSupported('immersive-ar');
             } catch (e) {
                 console.error('Error checking XR support:', e);
                 return false;
@@ -24,18 +23,15 @@ document.addEventListener('DOMContentLoaded', function () {
         const enterARButton = document.getElementById('enter-ar');
         if (!enterARButton) {
             console.error('No element with ID "enter-ar" found.');
-            alert('No element with ID "enter-ar" found.');
             return;
         }
 
         enterARButton.addEventListener('click', async () => {
             try {
-                console.log('Requesting XR session...');
-                const session = await navigator.xr.requestSession('inline', {
+                const session = await navigator.xr.requestSession('immersive-ar', {
                     requiredFeatures: ['local-floor'],
                     optionalFeatures: ['local']
                 });
-                console.log('XR session started successfully.');
                 initializeARScene(session);
             } catch (e) {
                 console.error('Error starting AR session:', e);
@@ -45,8 +41,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function initializeARScene(session) {
-        console.log('Initializing AR scene...');
-
+        console.log('done');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
@@ -65,7 +60,6 @@ document.addEventListener('DOMContentLoaded', function () {
         renderer.xr.setSession(session);
 
         window.addEventListener('resize', () => {
-            console.log('Window resized.');
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
@@ -73,16 +67,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         async function setReferenceSpace() {
             try {
-                console.log('Requesting reference space...');
                 await session.requestReferenceSpace('local-floor');
                 renderer.xr.setReferenceSpaceType('local-floor');
-                console.log('Reference space set to local-floor.');
             } catch {
                 try {
-                    console.log('Requesting alternative reference space...');
                     await session.requestReferenceSpace('local');
                     renderer.xr.setReferenceSpaceType('local');
-                    console.log('Reference space set to local.');
                 } catch (e) {
                     console.error('Error setting reference space:', e);
                     alert('Failed to set reference space');
@@ -91,7 +81,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         function animate() {
-            console.log('Animating scene...');
             renderer.setAnimationLoop(() => renderer.render(scene, camera));
         }
 
