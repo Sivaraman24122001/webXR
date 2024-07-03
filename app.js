@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.xr.enabled = true;
+        renderer.xr.enabled = false;
         document.body.appendChild(renderer.domElement);
 
         renderer.xr.setSession(session);
