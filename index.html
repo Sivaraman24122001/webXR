@@ -3,91 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inline AR Example</title>
-    <!-- Include Three.js library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-        }
-        #ar-display {
-            width: 100vw;
-            height: 100vh;
-            background-color: black;
-        }
-    </style>
+    <title>Indoor Navigation in AR</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="ar-display"></div>
+    <button id="enter-ar">Enter AR</button>
+    <div id="ar-session-container"></div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Check if XR is supported in the browser
-            if ('xr' in navigator) {
-                try {
-                    // Check if inline-ar is supported
-                    const supported = await navigator.xr.isSessionSupported('inline-ar');
-                    if (!supported) {
-                        console.error('Inline AR is not supported in this browser.');
-                        return;
-                    }
-
-                    
-
-                    // Get a reference to the element where AR content will be displayed
-                    const arDisplay = document.getElementById('ar-display');
-                    if (!arDisplay) {
-                        console.error('AR display element not found.');
-                        return;
-                    }
-
-                    // Request an inline-ar session
-                    const session = await navigator.xr.requestSession('inline-ar');
-                    
-                    // Set the inline-ar session to the renderer
-                    const xrViewer = new XRViewer(session, arDisplay);
-
-                    // Initialize AR scene and content rendering
-                    function initializeARScene() {
-                        // Example: Render a simple AR object
-                        const scene = new THREE.Scene();
-                        const camera = new THREE.PerspectiveCamera(75, arDisplay.clientWidth / arDisplay.clientHeight, 0.1, 1000);
-                        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-                        renderer.setSize(arDisplay.clientWidth, arDisplay.clientHeight);
-                        arDisplay.appendChild(renderer.domElement);
-
-                        // Example: Create a cube
-                        const geometry = new THREE.BoxGeometry();
-                        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-                        const cube = new THREE.Mesh(geometry, material);
-                        cube.scale.set(0.5, 0.5, 0.5);
-                        cube.position.set(0, 0, -3);
-                        scene.add(cube);
-
-                        // Example: Render loop
-                        function animate() {
-                            renderer.setAnimationLoop(() => {
-                                cube.rotation.x += 0.01;
-                                cube.rotation.y += 0.01;
-                                renderer.render(scene, camera);
-                            });
-                        }
-
-                        animate();
-                    }
-
-                    initializeARScene();
-
-                } catch (error) {
-                    console.error('Error starting inline-ar session:', error);
-                    alert('Failed to start inline-ar session. Please check console for errors.');
-                }
-            } else {
-                console.error('XR not available in navigator');
-                alert('XR is not supported in this browser.');
-            }
-        });
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
