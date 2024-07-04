@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         
         const textureLoader = new THREE.TextureLoader();
-        textureLoader.load('assets/conferanceroom.png', (texture) => {
+        textureLoader.load('https://github.com/Sivaraman24122001/webXR/blob/main/assets/conferanceroom.png', (texture) => {
             const planeWidth = 0.3  
             const planeHeight = 0.6;  
             const planeGeometry = new THREE.PlaneGeometry(planeWidth, planeHeight);
