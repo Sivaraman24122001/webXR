@@ -52,6 +52,32 @@ document.addEventListener('DOMContentLoaded', function () {
         cube.position.set(0, 1, -3);
         scene.add(cube);
 
+        
+        const textureLoader = new THREE.TextureLoader();
+        textureLoader.load('assets/conferanceroom.png', (texture) => {
+            const planeWidth = 0.3  
+            const planeHeight = 0.6;  
+            const planeGeometry = new THREE.PlaneGeometry(planeWidth, planeHeight);
+            const planeMaterial = new THREE.MeshBasicMaterial({ map: texture });
+            const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+            plane.position.set(-1, 1.5, -2);
+            scene.add(plane);
+        });
+
+       
+        const loader = new THREE.GLTFLoader();
+        try{
+        loader.load('model/direction_arrows.glb', (gltf) => {
+            const model = gltf.scene;
+            model.position.set(1, 0, -3); 
+            model.scale.set(0.5, 0.5, 0.5); 
+            scene.add(model);
+        }, undefined, (error) => {
+            console.error('An error occurred while loading the model:', error);
+        });}catch(e){
+            console.log('Model:',error);
+        }
+
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.xr.enabled = true;
