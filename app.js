@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         
         const textureLoader = new THREE.TextureLoader();
-        textureLoader.load('conferanceroom.png', (texture) => {
+        textureLoader.load('assets/conferanceroom.png', (texture) => {
             const planeWidth = 0.3  
             const planeHeight = 0.6;  
             const planeGeometry = new THREE.PlaneGeometry(planeWidth, planeHeight);
@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function () {
        
         const loader = new THREE.GLTFLoader();
         try{
-        loader.load('direction_arrows.glb', (gltf) => {
+        loader.load('model/direction_arrows.glb', (gltf) => {
             const model = gltf.scene;
             model.position.set(1, 0, -3); 
             model.scale.set(0.5, 0.5, 0.5); 
