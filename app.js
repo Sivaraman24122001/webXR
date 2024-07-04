@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function () {
        
         const loader = new THREE.GLTFLoader();
         try{
-        loader.load('model/direction_arrows.glb', (gltf) => {
+        loader.load('https://github.com/Sivaraman24122001/webXR/blob/main/model/direction_arrows.glb', (gltf) => {
             const model = gltf.scene;
             model.position.set(1, 0, -3); 
             model.scale.set(0.5, 0.5, 0.5); 
