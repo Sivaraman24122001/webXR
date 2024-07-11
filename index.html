@@ -1,81 +1,84 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Three.js Cube with AR Button</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebXR Raycaster Example</title>
     <style>
         body { margin: 0; }
         canvas { display: block; }
-        #stopAR { 
-            position: absolute; 
-            top: 10px; 
-            left: 10px; 
-            z-index: 10001; 
-            display: none; 
-            padding: 10px; 
-            background-color: red; 
-            color: white; 
-            border: none; 
-            cursor: pointer; 
-        }
     </style>
 </head>
 <body>
-    <button id="stopAR">Stop AR</button>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script type="module">
-        import { ARButton } from 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/webxr/ARButton.js';
+    <script src="https://cdn.jsdelivr.net/npm/@webxr-input-profiles/motion-controllers"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.124/examples/js/webxr/VRButton.js"></script>
+    <script>
+        let scene, camera, renderer, cube, raycaster, controller;
 
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        init();
+        animate();
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.xr.enabled = true;
-        document.body.appendChild(renderer.domElement);
+        function init() {
+            // Set up scene
+            scene = new THREE.Scene();
 
-        const stopARButton = document.getElementById('stopAR');
-        
-        stopARButton.addEventListener('click', () => {
-            const session = renderer.xr.getSession();
-            if (session) {
-                session.end();
-            }
-        });
+            // Set up camera
+            camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 10);
+            camera.position.z = 2;
 
-        document.body.appendChild(ARButton.createButton(renderer, {
-            requiredFeatures: ['dom-overlay'],
-            domOverlay: { root: document.body }
-        }));
+            // Set up renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.xr.enabled = true;
+            document.body.appendChild(renderer.domElement);
+            document.body.appendChild(VRButton.createButton(renderer));
 
-        const geometry = new THREE.BoxGeometry();
-        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-        const cube = new THREE.Mesh(geometry, material);
-        cube.position.set(0, 0, -3);
-        scene.add(cube);
+            // Add a red cube to the scene
+            const geometry = new THREE.BoxGeometry();
+            const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+            cube = new THREE.Mesh(geometry, material);
+            scene.add(cube);
 
-        camera.position.z = 5;
+            // Set up raycaster
+            raycaster = new THREE.Raycaster();
 
-        function animate() {
-            cube.rotation.x += 0.01;
-            cube.rotation.y += 0.01;
-            renderer.render(scene, camera);
+            // Set up controller for VR interactions
+            controller = renderer.xr.getController(0);
+            controller.addEventListener('selectstart', onSelectStart);
+            scene.add(controller);
+
+            // Handle window resize
+            window.addEventListener('resize', onWindowResize);
         }
 
-        renderer.setAnimationLoop(animate);
-
-        renderer.xr.addEventListener('sessionstart', () => {
-            stopARButton.style.display = 'block';
-        });
-
-        renderer.xr.addEventListener('sessionend', () => {
-            stopARButton.style.display = 'none';
-        });
-
-        window.addEventListener('resize', () => {
+        function onWindowResize() {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
-        });
+        }
+
+        function onSelectStart(event) {
+            // Set the raycaster's origin and direction
+            const controllerPosition = new THREE.Vector3();
+            controller.getWorldPosition(controllerPosition);
+            raycaster.set(controllerPosition, controller.getWorldDirection(new THREE.Vector3()));
+
+            // Check for intersections
+            const intersects = raycaster.intersectObject(cube);
+            if (intersects.length > 0) {
+                // Change the cube's color to green
+                cube.material.color.set(0x00ff00);
+            }
+        }
+
+        function animate() {
+            renderer.setAnimationLoop(render);
+        }
+
+        function render() {
+            renderer.render(scene, camera);
+        }
     </script>
 </body>
 </html>
