@@ -30,11 +30,23 @@
             margin-top: 100px;
             margin-left: 100px;
         }
+
+        #userPos {
+            position: absolute;
+            top: 50px;
+            left: 10px;
+            z-index: 10001;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+        }
     </style>
 </head>
 <body>
     <div id="hi">HIII</div>
     <button id="stopAR" onclick="stopARSession()">Stop AR</button>
+    <div id="userPos">User Position: (0, 0, 0)</div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script type="module">
         import { ARButton } from 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/webxr/ARButton.js';
@@ -63,7 +75,7 @@
             const geometry = new THREE.BoxGeometry();
             const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
             cube = new THREE.Mesh(geometry, material);
-            cube.position.set(0, 0, -7);
+            cube.position.set(0, 0, -2);
             scene.add(cube);
 
             window.addEventListener('resize', onWindowResize, false);
@@ -80,6 +92,10 @@
                         viewerPose.transform.position.y,
                         viewerPose.transform.position.z
                     );
+
+                    // Update UI with user's position
+                    const userPosElement = document.getElementById('userPos');
+                    userPosElement.textContent = `User Position: (${userPos.x.toFixed(2)}, ${userPos.y.toFixed(2)}, ${userPos.z.toFixed(2)})`;
 
                     updateSpheres(userPos, cube.position);
                 }
