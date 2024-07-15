@@ -51,7 +51,7 @@
     <script type="module">
         import { ARButton } from 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/webxr/ARButton.js';
 
-        let scene, camera, renderer, cube, spheres = [];
+        let scene, camera, renderer, cube;
         let xrSession = null;
         let xrReferenceSpace = null;
 
@@ -96,32 +96,10 @@
                     // Update UI with user's position
                     const userPosElement = document.getElementById('userPos');
                     userPosElement.textContent = `User Position: (${userPos.x.toFixed(2)}, ${userPos.y.toFixed(2)}, ${userPos.z.toFixed(2)})`;
-
-                    updateSpheres(userPos, cube.position);
                 }
             }
 
             renderer.render(scene, camera);
-        }
-
-        function updateSpheres(userPos, cubePos) {
-            // Remove old spheres
-            spheres.forEach(sphere => scene.remove(sphere));
-            spheres = [];
-
-            // Create new spheres along the path from user to cube
-            const steps = 20;
-            for (let i = 0; i <= steps; i++) {
-                const t = i / steps;
-                const spherePos = new THREE.Vector3().lerpVectors(userPos, cubePos, t);
-                const sphere = new THREE.Mesh(
-                    new THREE.SphereGeometry(0.05),
-                    new THREE.MeshBasicMaterial({ color: 0x0000ff })
-                );
-                sphere.position.copy(spherePos);
-                spheres.push(sphere);
-                scene.add(sphere);
-            }
         }
 
         function onWindowResize() {
