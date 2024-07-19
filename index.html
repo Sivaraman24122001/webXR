@@ -1,133 +1,41 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Three.js Cube with AR Button</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebXR AR Example</title>
     <style>
-        body { margin: 0; }
-        canvas { display: block; }
-        #stopAR { 
-            position: absolute; 
-            top: 10px; 
-            left: 10px; 
-            z-index: 10001; 
-            display: none; 
-            padding: 10px; 
-            background-color: red; 
-            color: white; 
-            border: none; 
-            cursor: pointer; 
-        }
-        
-        #hi{
-            background-color: orange;
-            height: 100px;
-            width: 100px;
-            position: absolute;
-            z-index: 10001;
+        body {
+            height: 100vh;
+            width: 100vw;
             display: flex;
+            flex-direction: column;
             justify-content: center;
-            place-items: center;
-            margin-top: 100px;
-            margin-left: 100px;
+            align-items: center;
         }
-
-        #userPos {
-            position: absolute;
-            top: 50px;
-            left: 10px;
-            z-index: 10001;
-            padding: 10px;
-            background-color: rgba(0, 0, 0, 0.5);
-            color: white;
+        #enter-ar {
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #007bff;
             border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        #userPos {
+            position : absolute;
+            z-index: 10001;
+            margin-top: 200%;
+            font-size: 18px;
+            color: #333;
         }
     </style>
 </head>
 <body>
-    <div id="hi">HIII</div>
-    <button id="stopAR" onclick="stopARSession()">Stop AR</button>
-    <div id="userPos">User Position: (0, 0, 0)</div>
+    <button id="enter-ar">Enter AR</button>
+    <div id="userPos">User Position: (0.00, 0.00, 0.00)</div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script type="module">
-        import { ARButton } from 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/webxr/ARButton.js';
-
-        let scene, camera, renderer, cube;
-        let xrSession = null;
-        let xrReferenceSpace = null;
-
-        init();
-
-        function init() {
-            scene = new THREE.Scene();
-
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-
-            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.xr.enabled = true;
-            document.body.appendChild(renderer.domElement);
-
-            document.body.appendChild(ARButton.createButton(renderer, {
-                requiredFeatures: ['local', 'dom-overlay'],
-                domOverlay: { root: document.body }
-            }));
-
-            const geometry = new THREE.BoxGeometry();
-            const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-            cube = new THREE.Mesh(geometry, material);
-            cube.scale.set(0.2, 0.2, 0.2);
-            cube.position.set(0, 0, -1);
-            scene.add(cube);
-
-            window.addEventListener('resize', onWindowResize, false);
-
-            renderer.setAnimationLoop(render);
-        }
-
-        function render(timestamp, frame) {
-            if (frame) {
-                const viewerPose = frame.getViewerPose(xrReferenceSpace);
-                if (viewerPose) {
-                    const userPos = new THREE.Vector3(
-                        viewerPose.transform.position.x,
-                        viewerPose.transform.position.y,
-                        viewerPose.transform.position.z
-                    );
-
-                    // Update UI with user's position
-                    const userPosElement = document.getElementById('userPos');
-                    userPosElement.textContent = `User Position: (${userPos.x.toFixed(2)}, ${userPos.y.toFixed(2)}, ${userPos.z.toFixed(2)})`;
-                }
-            }
-
-            renderer.render(scene, camera);
-        }
-
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        }
-
-        function stopARSession() {
-            if (xrSession) {
-                xrSession.end();
-            }
-        }
-
-        renderer.xr.addEventListener('sessionstart', () => {
-            xrSession = renderer.xr.getSession();
-            xrSession.requestReferenceSpace('local').then((refSpace) => {
-                xrReferenceSpace = refSpace;
-            });
-            document.getElementById('stopAR').style.display = 'block';
-        });
-
-        renderer.xr.addEventListener('sessionend', () => {
-            xrSession = null;
-            xrReferenceSpace = null;
-            document.getElementById('stopAR').style.display = 'none';
-        });
-    </script>
+    <script src="app.js"></script>
 </body>
 </html>
