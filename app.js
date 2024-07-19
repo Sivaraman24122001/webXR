@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
         const cube = new THREE.Mesh(geometry, material);
         cube.scale.set(0.5, 0.5, 0.5);
-        cube.position.set(0, 1, -3);
+        cube.position.set(0, 0, -1);
         scene.add(cube);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
