@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
         const cube = new THREE.Mesh(geometry, material);
         cube.scale.set(0.5, 0.5, 0.5);
-        cube.position.set(0, 0, -1);
+        cube.position.set(0, 0, -3);
         scene.add(cube);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -63,9 +63,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         session.requestReferenceSpace('local-floor').then((refSpace) => {
             xrReferenceSpace = refSpace;
+            console.log('LF');
         }).catch(() => {
             session.requestReferenceSpace('local').then((refSpace) => {
                 xrReferenceSpace = refSpace;
+                console.log('L');
             }).catch((e) => {
                 console.error('Error setting reference space:', e);
                 alert('Failed to set reference space');
