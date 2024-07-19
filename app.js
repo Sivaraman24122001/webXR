@@ -29,8 +29,9 @@ document.addEventListener('DOMContentLoaded', function () {
         enterARButton.addEventListener('click', async () => {
             try {
                 const session = await navigator.xr.requestSession('immersive-ar', {
-                    requiredFeatures: ['local-floor'],
-                    optionalFeatures: ['local']
+                    requiredFeatures: ['local-floor', 'dom-overlay'],
+                    optionalFeatures: ['local'],
+                    domOverlay : {root : document.body}
                 });
                 initializeARScene(session);
             } catch (e) {
@@ -41,7 +42,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function initializeARScene(session) {
-        console.log('done');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
@@ -52,32 +52,6 @@ document.addEventListener('DOMContentLoaded', function () {
         cube.position.set(0, 1, -3);
         scene.add(cube);
 
-        
-        const textureLoader = new THREE.TextureLoader();
-        textureLoader.load('https://github.com/Sivaraman24122001/webXR/blob/main/assets/conferanceroom.png', (texture) => {
-            const planeWidth = 0.3  
-            const planeHeight = 0.6;  
-            const planeGeometry = new THREE.PlaneGeometry(planeWidth, planeHeight);
-            const planeMaterial = new THREE.MeshBasicMaterial({ map: texture });
-            const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-            plane.position.set(-1, 1.5, -2);
-            scene.add(plane);
-        });
-
-       
-        const loader = new THREE.GLTFLoader();
-        try{
-        loader.load('https://github.com/Sivaraman24122001/webXR/blob/main/model/direction_arrows.glb', (gltf) => {
-            const model = gltf.scene;
-            model.position.set(1, 0, -3); 
-            model.scale.set(0.5, 0.5, 0.5); 
-            scene.add(model);
-        }, undefined, (error) => {
-            console.error('An error occurred while loading the model:', error);
-        });}catch(e){
-            console.log('Model:',error);
-        }
-
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.xr.enabled = true;
@@ -85,32 +59,39 @@ document.addEventListener('DOMContentLoaded', function () {
 
         renderer.xr.setSession(session);
 
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+        let xrReferenceSpace;
+
+        session.requestReferenceSpace('local-floor').then((refSpace) => {
+            xrReferenceSpace = refSpace;
+        }).catch(() => {
+            session.requestReferenceSpace('local').then((refSpace) => {
+                xrReferenceSpace = refSpace;
+            }).catch((e) => {
+                console.error('Error setting reference space:', e);
+                alert('Failed to set reference space');
+            });
         });
 
-        async function setReferenceSpace() {
-            try {
-                await session.requestReferenceSpace('local-floor');
-                renderer.xr.setReferenceSpaceType('local-floor');
-            } catch {
-                try {
-                    await session.requestReferenceSpace('local');
-                    renderer.xr.setReferenceSpaceType('local');
-                } catch (e) {
-                    console.error('Error setting reference space:', e);
-                    alert('Failed to set reference space');
-                }
-            }
-        }
-
         function animate() {
-            renderer.setAnimationLoop(() => renderer.render(scene, camera));
+            renderer.setAnimationLoop((timestamp, frame) => {
+                if (frame) {
+                    const viewerPose = frame.getViewerPose(xrReferenceSpace);
+                    if (viewerPose) {
+                        const userPos = new THREE.Vector3(
+                            viewerPose.transform.position.x,
+                            viewerPose.transform.position.y,
+                            viewerPose.transform.position.z
+                        );
+
+                        // Update UI with user's position
+                        const userPosElement = document.getElementById('userPos');
+                        userPosElement.textContent = `User Position: (${userPos.x.toFixed(2)}, ${userPos.y.toFixed(2)}, ${userPos.z.toFixed(2)})`;
+                    }
+                }
+                renderer.render(scene, camera);
+            });
         }
 
-        setReferenceSpace();
         animate();
     }
 
